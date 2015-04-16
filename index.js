@@ -10,22 +10,35 @@ var MANUFACTURER_ID_REGISTER = 0x06;
 var RESOLUTION_REGISTER = 0x08;
 var CONFIGURATION_REGISTER = 0x01;
 
-//Configuration register values.
-var CONFIGURATION_SHUTDOWN_BYTES     = 0x0100
+//info
+//The read command reads the 0x0080 from right to left
 
-function MCP9808()
+//Configuration register values.
+var CONFIGURATION_SHUTDOWN_BYTES = 0x0100;
+var CONFIGURATION_CRITICAL_LOCK = 0x0080;
+var CONFIGURATION_WINDOW_LOCK = 0x0040;
+var CONFIGURATION_INTERRUPT_CLEAR = 0x0020;
+var CONFIGURATION_ALERT_STATUS = 0x0010; 
+var CONFIGURATION_ALERT_CONTROL = 0x0008;
+var CONFIGURATION_ALERT_SELECT = 0x0004;
+
+var CONFIGURATION_ALERT_POL = 0x0002;
+
+var exports = module.exports = {};
+var i2cdevice;
+
+exports.Initialize = function(Callback)
 {
     //sets up the device
-    this.i2cdevice = new i2c(I2C_ADDRESS, {device: '/dev/i2c-1'});
+    i2cdevice = new i2c(I2C_ADDRESS, {device: '/dev/i2c-1'});
+
+    Callback();
 }
 
-//export the class
-module.exports = MCP9808;
-
 //make these private
-MCP9808.prototype.ReadData = function(Register, Bytes, Callback)
+function ReadData(Register, Bytes, Callback)
 {
-    this.i2cdevice.readBytes(Register, Bytes, function(err, data) 
+    i2cdevice.readBytes(Register, Bytes, function(err, data) 
     {
         var ParsedData;
         if(Bytes == 1)
@@ -41,46 +54,48 @@ MCP9808.prototype.ReadData = function(Register, Bytes, Callback)
     });
 }
 
-MCP9808.prototype.WriteData = function(Register, ByteArray, Callback)
+//sends the LSB first. The device wants the MSB first. 
+function WriteData(Register, ByteArray, Callback)
 {
-    this.i2cdevice.writeBytes(Register, ByteArray, function(err) 
+    i2cdevice.writeBytes(Register, ByteArray, function(err) 
     {   
         Callback(err);
     });
 }
 
-function ReverseByte(val) 
+function ReverseByte(val)
 {
     return ((val & 0xFF) << 8)
            | ((val >> 8) & 0xFF);
 }
 
-MCP9808.prototype.SetShutdown = function(Callback)
+exports.SetShutdown = function(Callback)
 {
-    this.GetConfigurationRegister(function(ReadError, Configuration)
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
     {
-        this.WriteData(CONFIGURATION_REGISTER, [ReverseByte(Configuration | CONFIGURATION_SHUTDOWN_BYTES)], function(err)
+        WriteData(CONFIGURATION_REGISTER, [ReverseByte(Configuration | CONFIGURATION_SHUTDOWN_BYTES)], function(err)
         {
             Callback(err);
         });
     });
 }
 
-MCP9808.prototype.ClearShutdown = function(Callback)
+exports.ClearShutdown = function(Callback)
 {
-    this.GetConfigurationRegister(function(ReadError, Configuration)
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
     {
-        this.WriteData(CONFIGURATION_REGISTER, [ReverseByte(Configuration & ~CONFIGURATION_SHUTDOWN_BYTES)], function(err)
+        NewConfig = Configuration & ~CONFIGURATION_SHUTDOWN_BYTES;
+        WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
         {
             Callback(err);
         });
     });
 }
 
-MCP9808.prototype.SetTemperatureHysteresis = function(Hysteresis, Callback)
+exports.SetTemperatureHysteresis = function(Hysteresis, Callback)
 {
     //throw an error if the nubmer passed is wrong
-    this.GetConfigurationRegister(function(ReadError, Configuration)
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
     {
         if(Hysteresis == 0)
         {
@@ -99,48 +114,207 @@ MCP9808.prototype.SetTemperatureHysteresis = function(Hysteresis, Callback)
             Configuration = (Configuration & 0xF9FF) | 0x0600;
         }
 
-        this.WriteData(CONFIGURATION_REGISTER, [ReverseByte(Configuration)], function(err)
+        WriteData(CONFIGURATION_REGISTER, [ReverseByte(Configuration)], function(err)
         {
             Callback(err);
         });
     });
 }
 
-MCP9808.prototype.GetConfigurationRegister = function(Callback)
+exports.GetConfigurationRegister = function(Callback)
 {
-    this.ReadData(CONFIGURATION_REGISTER, 2, function(err, data)
+    ReadData(CONFIGURATION_REGISTER, 2, function(err, data)
     {
         Callback(err, data);
     });
 }
 
-MCP9808.prototype.ClearConfigurationRegister = function(Callback)
+exports.ClearConfigurationRegister = function(Callback)
 {
-    this.WriteData(CONFIGURATION_REGISTER, [0x00, 0x00], function(err)
+    WriteData(CONFIGURATION_REGISTER, [0x00, 0x00], function(err)
     {
         Callback(err);
     });
 }
 
-MCP9808.prototype.SetResolution = function(Resolution, Callback)
+exports.SetCriticalLock = function(Callback)
+{
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
+    {
+
+        NewConfig = (Configuration | CONFIGURATION_CRITICAL_LOCK);
+
+        //this effectively reverses the byte order
+        WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
+        {
+            Callback(err);
+        });
+    });
+}
+
+exports.SetWindowLock = function(Callback)
+{
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
+    {
+
+        NewConfig = (Configuration | CONFIGURATION_WINDOW_LOCK);
+
+        //this effectively reverses the byte order
+        WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
+        {
+            Callback(err);
+        });
+    });
+}
+
+exports.SetInterruptClear = function(Callback)
+{
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
+    {
+
+        NewConfig = (Configuration | CONFIGURATION_INTERRUPT_CLEAR);
+
+        //this effectively reverses the byte order
+        WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
+        {
+            Callback(err);
+        });
+    });
+}
+
+exports.SetAlertStatus = function(Callback)
+{
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
+    {
+
+        NewConfig = (Configuration | CONFIGURATION_ALERT_STATUS);
+
+        //this effectively reverses the byte order
+        WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
+        {
+            Callback(err);
+        });
+    });
+}
+
+exports.SetAlertControl = function(Callback)
+{
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
+    {
+
+        NewConfig = (Configuration | CONFIGURATION_ALERT_CONTROL);
+
+        //this effectively reverses the byte order
+        WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
+        {
+            Callback(err);
+        });
+    });
+}
+
+exports.SetAlertSelect = function(Callback)
+{
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
+    {
+
+        NewConfig = (Configuration | CONFIGURATION_ALERT_SELECT);
+
+        //this effectively reverses the byte order
+        WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
+        {
+            Callback(err);
+        });
+    });
+}
+
+exports.ClearAlertSelect = function(Callback)
+{
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
+    {
+        NewConfig = Configuration & ~CONFIGURATION_ALERT_SELECT;
+
+        WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
+        {
+            Callback(err);
+        });
+    });
+}
+
+exports.ClearAlertControl = function(Callback)
+{
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
+    {
+        NewConfig = Configuration & ~CONFIGURATION_ALERT_CONTROL;
+
+        WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
+        {
+            Callback(err);
+        });
+    });
+}
+
+exports.ClearAlertStatus = function(Callback)
+{
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
+    {
+        NewConfig = Configuration & ~CONFIGURATION_ALERT_STATUS;
+
+        WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
+        {
+            Callback(err);
+        });
+    });
+}
+
+exports.ClearInterruptClear = function(Callback)
+{
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
+    {
+        NewConfig = Configuration & ~CONFIGURATION_INTERRUPT_CLEAR;
+
+        WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
+        {
+            Callback(err);
+        });
+    });
+}
+
+exports.IsLocked = function(Callback)
+{
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
+    {
+        Configuration = Configuration & 0x00C0;
+
+        if(Configuration == 0x00C0 || Configuration == 0x0080 || Configuration == 0x0040)
+        {
+            Callback(true, ReadError);
+        }
+        else
+        {
+            Callback(false, ReadError);
+        }
+    });
+}
+
+exports.SetResolution = function(Resolution, Callback)
 {
     //0x00 for lowest resoluton, 0x03 for highest resolution
-    this.i2cdevice.writeBytes(RESOLUTION_REGISTER, [Resolution], function(err) 
+    i2cdevice.writeBytes(RESOLUTION_REGISTER, [Resolution], function(err) 
     {   
         Callback(err);
     });
 }
 
-MCP9808.prototype.IsReady = function(Callback)
+exports.IsReady = function(Callback)
 {
     var ManufacturerID;
     var DeviceID;
 
-    this.i2cdevice.readBytes(MANUFACTURER_ID_REGISTER, 2, function(err, RawManufacturerID) 
+    i2cdevice.readBytes(MANUFACTURER_ID_REGISTER, 2, function(err, RawManufacturerID) 
     {
         ManufacturerID = RawManufacturerID.readInt16BE(0);
         
-        this.i2cdevice.readBytes(DEVICE_ID_REGISTER, 2, function(err, RawDeviceID) 
+        i2cdevice.readBytes(DEVICE_ID_REGISTER, 2, function(err, RawDeviceID) 
         {
             DeviceID = RawDeviceID.readInt16BE(0);
 
@@ -156,9 +330,9 @@ MCP9808.prototype.IsReady = function(Callback)
     });
 }
 
-MCP9808.prototype.GetResolution = function(Callback)
+exports.GetResolution = function(Callback)
 {
-    this.i2cdevice.readBytes(RESOLUTION_REGISTER, 1, function(err, data) 
+    i2cdevice.readBytes(RESOLUTION_REGISTER, 1, function(err, data) 
     {
         Resolution = data.readUInt8(0);
 
@@ -166,9 +340,9 @@ MCP9808.prototype.GetResolution = function(Callback)
     });
 }
 
-MCP9808.prototype.AmbientTemperature = function(Callback)
+exports.AmbientTemperature = function(Callback)
 {
-    this.i2cdevice.readBytes(AMBIENT_TEMP_REGISTER, 2, function(err, data) 
+    i2cdevice.readBytes(AMBIENT_TEMP_REGISTER, 2, function(err, data) 
     {
         if (err) 
         {
@@ -186,32 +360,3 @@ MCP9808.prototype.AmbientTemperature = function(Callback)
         }
     });
 }
-
-// GetConfigurationRegister(function (error, data){
-//     console.log(data);
-//     SetTemperatureHysteresis(3, function(err)
-//     {
-//        GetConfigurationRegister(function (errror, dddata)
-//        {
-//         console.log(dddata);
-//        }); 
-//     });
-// });
-
-
-// SetResolution(0x00, function()
-// {
-//     GetResolution(function(err, data)
-//     {
-//         console.log(data);
-
-//         IsReady(function(err, ready)
-//         {
-//             console.log(ready);
-//             AmbientTemperature(function(err, bytes)
-//             {
-//                 console.log(bytes);
-//             });
-//         });
-//     });
-// });
