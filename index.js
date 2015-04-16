@@ -9,6 +9,9 @@ var DEVICE_ID_REGISTER = 0x07;
 var MANUFACTURER_ID_REGISTER = 0x06;
 var RESOLUTION_REGISTER = 0x08;
 var CONFIGURATION_REGISTER = 0x01;
+var UPPER_TEMPERATURE_REGISTER = 0x02;
+var LOWER_TEMPERATURE_REGISTER = 0x03;
+var CRITICAL_TEMPERATURE_REGISTER = 0x04;
 
 //info
 //The read command reads the 0x0080 from right to left
@@ -21,8 +24,8 @@ var CONFIGURATION_INTERRUPT_CLEAR = 0x0020;
 var CONFIGURATION_ALERT_STATUS = 0x0010; 
 var CONFIGURATION_ALERT_CONTROL = 0x0008;
 var CONFIGURATION_ALERT_SELECT = 0x0004;
-
-var CONFIGURATION_ALERT_POL = 0x0002;
+var CONFIGURATION_ALERT_POLARITY = 0x0002;
+var CONFIGURATION_ALERT_MODE = 0x0001;
 
 var exports = module.exports = {};
 var i2cdevice;
@@ -36,6 +39,14 @@ exports.Initialize = function(Callback)
 }
 
 //make these private
+function IsFloat(n) {
+    return n === +n && n !== (n|0);
+}
+
+function IsInteger(n) {
+    return n === +n && n === (n|0);
+}
+
 function ReadData(Register, Bytes, Callback)
 {
     i2cdevice.readBytes(Register, Bytes, function(err, data) 
@@ -137,6 +148,7 @@ exports.ClearConfigurationRegister = function(Callback)
     });
 }
 
+//works
 exports.SetCriticalLock = function(Callback)
 {
     exports.GetConfigurationRegister(function(ReadError, Configuration)
@@ -152,6 +164,7 @@ exports.SetCriticalLock = function(Callback)
     });
 }
 
+//works
 exports.SetWindowLock = function(Callback)
 {
     exports.GetConfigurationRegister(function(ReadError, Configuration)
@@ -167,12 +180,13 @@ exports.SetWindowLock = function(Callback)
     });
 }
 
+//might work: documentation says that when read it reverts to 0
 exports.SetInterruptClear = function(Callback)
 {
     exports.GetConfigurationRegister(function(ReadError, Configuration)
     {
-
         NewConfig = (Configuration | CONFIGURATION_INTERRUPT_CLEAR);
+
 
         //this effectively reverses the byte order
         WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
@@ -182,6 +196,7 @@ exports.SetInterruptClear = function(Callback)
     });
 }
 
+//not working
 exports.SetAlertStatus = function(Callback)
 {
     exports.GetConfigurationRegister(function(ReadError, Configuration)
@@ -197,6 +212,7 @@ exports.SetAlertStatus = function(Callback)
     });
 }
 
+//works
 exports.SetAlertControl = function(Callback)
 {
     exports.GetConfigurationRegister(function(ReadError, Configuration)
@@ -212,6 +228,7 @@ exports.SetAlertControl = function(Callback)
     });
 }
 
+//works
 exports.SetAlertSelect = function(Callback)
 {
     exports.GetConfigurationRegister(function(ReadError, Configuration)
@@ -220,6 +237,64 @@ exports.SetAlertSelect = function(Callback)
         NewConfig = (Configuration | CONFIGURATION_ALERT_SELECT);
 
         //this effectively reverses the byte order
+        WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
+        {
+            Callback(err);
+        });
+    });
+}
+
+//works
+exports.SetAlertPolarity = function(Callback)
+{
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
+    {
+
+        NewConfig = (Configuration | CONFIGURATION_ALERT_POLARITY);
+
+        //this effectively reverses the byte order
+        WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
+        {
+            Callback(err);
+        });
+    });
+}
+
+//works
+exports.SetAlertMode = function(Callback)
+{
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
+    {
+
+        NewConfig = (Configuration | CONFIGURATION_ALERT_MODE);
+
+        //this effectively reverses the byte order
+        WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
+        {
+            Callback(err);
+        });
+    });
+}
+
+exports.ClearAlertMode = function(Callback)
+{
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
+    {
+        NewConfig = Configuration & ~CONFIGURATION_ALERT_MODE;
+
+        WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
+        {
+            Callback(err);
+        });
+    });
+}
+
+exports.ClearAlertPolarity = function(Callback)
+{
+    exports.GetConfigurationRegister(function(ReadError, Configuration)
+    {
+        NewConfig = Configuration & ~CONFIGURATION_ALERT_POLARITY;
+
         WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
         {
             Callback(err);
@@ -305,6 +380,18 @@ exports.SetResolution = function(Resolution, Callback)
     });
 }
 
+
+//This function will return the cause of the alert output trigger, it will return
+//the bits 13 14 and 15 of the TA Register mapped into an int
+exports.GetAlertOutput = function(Callback)
+{
+    ReadData(AMBIENT_TEMP_REGISTER, 2, function(err, data)
+    {
+        Callback(err, (data & 0xE000) >> 13);
+    });
+}
+        
+
 exports.IsReady = function(Callback)
 {
     var ManufacturerID;
@@ -358,5 +445,190 @@ exports.AmbientTemperature = function(Callback)
 
             Callback(null, temp);
         }
+    });
+}
+
+//Set the Temperature Upper Register with a resolution of 0.25 Degree Celsius, if the temperature passed
+//to the funcition is not in that resolution it will be rounded by defect to the nearest decimal resolution
+//works
+exports.SetUpperTemperature = function(Temperature, Callback)
+{
+    //Check if temp is float
+    Temperature = Temperature * 1.00;
+
+    //Divide Integer from decimal parts
+    DecimalPart = (Math.abs(Temperature) % 1).toFixed(4);
+    IntegerPart = Math.floor(Math.abs(Temperature));
+
+    //Round decimal parts to 0.25 steps
+    if (DecimalPart >= 0 && DecimalPart < 0.25)
+    {
+        DecimalPart = 0x00;
+    }
+    else if (DecimalPart >= 0.25 && DecimalPart < 0.5)
+    {
+        DecimalPart = 0x01;
+    }
+    else if (DecimalPart >= 0.5 && DecimalPart < 0.75)
+    {
+        DecimalPart = 0x02;
+    }
+    else if (DecimalPart >= 0.75 && DecimalPart < 1)
+    {
+        DecimalPart = 0x03;
+    }
+    //Calculate the new temperature to write
+    FinalTemperature = 0;
+    FinalTemperature = ((IntegerPart << 4) | (DecimalPart << 2)) & 0x0FFC;
+
+    //Set Sign if it is negative
+    if(Temperature < 0)
+    {
+        FinalTemperature = FinalTemperature | 0x1000;
+    }
+
+    //Write to Register
+    WriteData(UPPER_TEMPERATURE_REGISTER, [FinalTemperature >> 8, FinalTemperature], function(err)
+    {
+        Callback(err);
+    });
+}
+
+exports.SetLowerTemperature = function(Temperature, Callback)
+{
+    //Check if temp is float
+    Temperature = Temperature * 1.00;
+
+    //Divide Integer from decimal parts
+    DecimalPart = (Math.abs(Temperature) % 1).toFixed(4);
+    IntegerPart = Math.floor(Math.abs(Temperature));
+
+    //Round decimal parts to 0.25 steps
+    if (DecimalPart >= 0 && DecimalPart < 0.25)
+    {
+        DecimalPart = 0x00;
+    }
+    else if (DecimalPart >= 0.25 && DecimalPart < 0.5)
+    {
+        DecimalPart = 0x01;
+    }
+    else if (DecimalPart >= 0.5 && DecimalPart < 0.75)
+    {
+        DecimalPart = 0x02;
+    }
+    else if (DecimalPart >= 0.75 && DecimalPart < 1)
+    {
+        DecimalPart = 0x03;
+    }
+    //Calculate the new temperature to write
+    FinalTemperature = 0;
+    FinalTemperature = ((IntegerPart << 4) | (DecimalPart << 2)) & 0x0FFC;
+
+    //Set Sign if it is negative
+    if(Temperature < 0)
+    {
+        FinalTemperature = FinalTemperature | 0x1000;
+    }
+
+    //Write to Register
+    WriteData(LOWER_TEMPERATURE_REGISTER, [FinalTemperature >> 8, FinalTemperature], function(err)
+    {
+        Callback(err);
+    });
+}
+
+exports.SetCriticalTemperature = function(Temperature, Callback)
+{
+    //Check if temp is float
+    Temperature = Temperature * 1.00;
+
+    //Divide Integer from decimal parts
+    DecimalPart = (Math.abs(Temperature) % 1).toFixed(4);
+    IntegerPart = Math.floor(Math.abs(Temperature));
+
+    //Round decimal parts to 0.25 steps
+    if (DecimalPart >= 0 && DecimalPart < 0.25)
+    {
+        DecimalPart = 0x00;
+    }
+    else if (DecimalPart >= 0.25 && DecimalPart < 0.5)
+    {
+        DecimalPart = 0x01;
+    }
+    else if (DecimalPart >= 0.5 && DecimalPart < 0.75)
+    {
+        DecimalPart = 0x02;
+    }
+    else if (DecimalPart >= 0.75 && DecimalPart < 1)
+    {
+        DecimalPart = 0x03;
+    }
+    //Calculate the new temperature to write
+    FinalTemperature = 0;
+    FinalTemperature = ((IntegerPart << 4) | (DecimalPart << 2)) & 0x0FFC;
+
+    //Set Sign if it is negative
+    if(Temperature < 0)
+    {
+        FinalTemperature = FinalTemperature | 0x1000;
+    }
+
+    //Write to Register
+    WriteData(CRITICAL_TEMPERATURE_REGISTER, [FinalTemperature >> 8, FinalTemperature], function(err)
+    {
+        Callback(err);
+    });
+}
+
+//Get the Temperature Upper Register
+//works
+exports.GetUpperTemperature = function(Callback)
+{
+    ReadData(UPPER_TEMPERATURE_REGISTER, 2, function(err, data)
+    {
+        UpperByte = data & 0x0FF0;
+        LowerByte = data & 0x000C;
+        Sign = 1;
+
+        if(data & 0x1000)
+        {
+            Sign = -1;
+        }
+
+        Callback(err, (((UpperByte >> 4) + ((LowerByte >> 2) / 4))) * Sign);
+    });
+}
+
+exports.GetLowerTemperature = function(Callback)
+{
+    ReadData(LOWER_TEMPERATURE_REGISTER, 2, function(err, data)
+    {
+        UpperByte = data & 0x0FF0;
+        LowerByte = data & 0x000C;
+        Sign = 1;
+
+        if(data & 0x1000)
+        {
+            Sign = -1;
+        }
+
+        Callback(err, (((UpperByte >> 4) + ((LowerByte >> 2) / 4))) * Sign);
+    });
+}
+
+exports.GetCriticalTemperature = function(Callback)
+{
+    ReadData(CRITICAL_TEMPERATURE_REGISTER, 2, function(err, data)
+    {
+        UpperByte = data & 0x0FF0;
+        LowerByte = data & 0x000C;
+        Sign = 1;
+
+        if(data & 0x1000)
+        {
+            Sign = -1;
+        }
+
+        Callback(err, (((UpperByte >> 4) + ((LowerByte >> 2) / 4))) * Sign);
     });
 }
