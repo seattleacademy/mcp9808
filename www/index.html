@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RedBlack14</title>
+        <link href="http://saasmath.seattleacademy.org/css/bootstrap.min.css" rel="stylesheet">
+        <script src="http://saasmath.seattleacademy.org/js/jquery-2.1.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js
+    "></script>
+        <script>
+        var myLineChart;
+        var Position = 0;
+
+        function UpdateChartData(X, Y)
+        {
+            myLineChart.addData([Y], X);
+            myLineChart.update();
+        }
+
+        $(document).ready(function()
+        {
+            data = {
+                labels: [],
+                datasets: [{
+                    data: []
+                }]
+            };
+             ctx = $("#myChart").get(0).getContext("2d");
+             //http://www.chartjs.org/docs/#line-chart-chart-options
+            var Options = {
+                animation : true,  // Edit: correction typo: from 'animated' to 'animation'
+                pointDot : true,
+                bezierCurve : true
+            }
+            myLineChart = new Chart(ctx).Line(data,Options);
+
+            setInterval(function(){
+                UpdateChartData(Position, 100);
+                Position += 10;
+            }, 1000);
+        });
+        </script>
+    </head>
+     
+    <body>
+        <canvas id="myChart">chart</canvas>        
+    </body>
+</html>
