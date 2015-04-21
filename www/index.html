@@ -7,14 +7,31 @@
         <script src="http://saasmath.seattleacademy.org/js/jquery-2.1.1.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js
     "></script>
+        <script type="text/javascript" src="/socket.io/socket.io.js"></script>
         <script>
+        var StartTime;
+        var socket = io.connect('http://10.48.102.103:10000');
         var myLineChart;
-        var Position = 0;
+        var Points = 0;
+
+        //once the connection is functional
+        socket.on('data', function(data)
+        {
+            StartTime = Date.now();
+            UpdateChartData(Math.floor((Date.now() - StartTime) / 1000.0), data);
+
+            if(Points > 10)
+            {
+                myLineChart.removeData();
+            }
+        });
+
 
         function UpdateChartData(X, Y)
         {
             myLineChart.addData([Y], X);
             myLineChart.update();
+            Points+=1;
         }
 
         $(document).ready(function()
@@ -25,7 +42,8 @@
                     data: []
                 }]
             };
-             ctx = $("#myChart").get(0).getContext("2d");
+
+            ctx = $("#myChart").get(0).getContext("2d");
              //http://www.chartjs.org/docs/#line-chart-chart-options
             var Options = {
                 animation : true,  // Edit: correction typo: from 'animated' to 'animation'
@@ -33,11 +51,6 @@
                 bezierCurve : true
             }
             myLineChart = new Chart(ctx).Line(data,Options);
-
-            setInterval(function(){
-                UpdateChartData(Position, 100);
-                Position += 10;
-            }, 1000);
         });
         </script>
     </head>

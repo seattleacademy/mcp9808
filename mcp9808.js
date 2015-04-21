@@ -429,7 +429,7 @@ exports.GetResolution = function(Callback)
 
 exports.AmbientTemperature = function(Callback)
 {
-    i2cdevice.readBytes(AMBIENT_TEMP_REGISTER, 2, function(err, data) 
+    ReadData(AMBIENT_TEMP_REGISTER, 2, function(err, data) 
     {
         if (err) 
         {
@@ -437,7 +437,7 @@ exports.AmbientTemperature = function(Callback)
         }
         else 
         {
-            var temp = (data.readInt16BE(0) & 0x0FFF) / 16.0;
+            var temp = (data & 0x0FFF) / 16.0;
             if(data & 0x1000)
             {
                 temp -= 256.0;
