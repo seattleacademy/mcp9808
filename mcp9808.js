@@ -362,11 +362,11 @@ exports.IsLocked = function(Callback)
 
         if(Configuration == 0x00C0 || Configuration == 0x0080 || Configuration == 0x0040)
         {
-            Callback(true, ReadError);
+            Callback(ReadError, true);
         }
         else
         {
-            Callback(false, ReadError);
+            Callback(ReadError, false);
         }
     });
 }

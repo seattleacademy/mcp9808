@@ -9,16 +9,23 @@
     "></script>
         <script type="text/javascript" src="/socket.io/socket.io.js"></script>
         <script>
+
         var StartTime;
         var socket = io.connect('http://10.48.102.103:10000');
         var myLineChart;
         var Points = 0;
+        var Data = {}; 
 
         //once the connection is functional
         socket.on('data', function(data)
         {
-            StartTime = Date.now();
-            UpdateChartData(Math.floor((Date.now() - StartTime) / 1000.0), data);
+            Data = JSON.parse(data);
+
+            console.log(Data);
+
+            
+            console.log(Date.now() - StartTime);
+            UpdateChartData(Math.floor((Date.now() - StartTime) / 1000.0), Data["Temperature"]);
 
             if(Points > 10)
             {
@@ -26,7 +33,7 @@
             }
         });
 
-
+        //update the chart function
         function UpdateChartData(X, Y)
         {
             myLineChart.addData([Y], X);
@@ -34,19 +41,21 @@
             Points+=1;
         }
 
+        //setup the chart
         $(document).ready(function()
         {
+            //set the start time
+            StartTime = Date.now();
+
             data = {
                 labels: [],
                 datasets: [{
                     data: []
                 }]
             };
-
             ctx = $("#myChart").get(0).getContext("2d");
-             //http://www.chartjs.org/docs/#line-chart-chart-options
             var Options = {
-                animation : true,  // Edit: correction typo: from 'animated' to 'animation'
+                animation : true,
                 pointDot : true,
                 bezierCurve : true
             }
@@ -54,7 +63,7 @@
         });
         </script>
     </head>
-     
+    
     <body>
         <canvas id="myChart">chart</canvas>        
     </body>
