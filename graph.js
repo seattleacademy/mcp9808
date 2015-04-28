@@ -80,7 +80,22 @@ MCP9808.Initialize(function()
 
 	    socket.on('data', function(data)
 	    {
-	    	console.log("data");
+	    	//request has two properties: Command and Value
+	    	Request = JSON.parse(data);
+	    	 
+	    	switch(Request["Command"]) 
+	    	{
+			    case "SetShutdown":
+			        console.log("SetShutdown");
+			        break;
+
+			    case "SetTemperatureHysteresis":
+			        console.log("Set Hystresis to " + Request["Value"]);
+			        break;
+			        
+			    default:
+			        console.log("Invalid Request");
+			}
 	    });
 	});
 });

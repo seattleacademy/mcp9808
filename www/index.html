@@ -2,14 +2,31 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>RedBlack14</title>
+        <style>
+            #temperature-chart
+            {
+                width: 100%;
+            }
+
+            #command-dropdown
+            {
+                width: 25%
+            }
+            #command-value
+            {
+                width: 25%;
+            }
+
+        </style>
+
+        <title>MCP9808 Sensor Controller</title>
+
         <link href="http://saasmath.seattleacademy.org/css/bootstrap.min.css" rel="stylesheet">
         <script src="http://saasmath.seattleacademy.org/js/jquery-2.1.1.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js
     "></script>
         <script type="text/javascript" src="/socket.io/socket.io.js"></script>
         <script>
-
         var StartTime;
         var socket = io.connect('http://10.48.102.103:10000');
         var myLineChart;
@@ -19,10 +36,11 @@
         //once the connection is functional
         socket.on('data', function(data)
         {
+            socket.emit('data', JSON.stringify({"Test": "hello"}));
+
             Data = JSON.parse(data);
 
             console.log(Data);
-
             
             console.log(Date.now() - StartTime);
             UpdateChartData(Math.floor((Date.now() - StartTime) / 1000.0), Data["Temperature"]);
@@ -44,6 +62,14 @@
         //setup the chart
         $(document).ready(function()
         {
+            $("#command-send").click(function()
+            {
+                var Command = $("#command-dropdown option:selected").attr("test");
+                var Value = $("#command-value").val();
+
+                alert(Command + ", " + Value);
+            });
+
             //set the start time
             StartTime = Date.now();
 
@@ -53,18 +79,42 @@
                     data: []
                 }]
             };
-            ctx = $("#myChart").get(0).getContext("2d");
+            ctx = $("#temperature-chart").get(0).getContext("2d");
             var Options = {
                 animation : true,
                 pointDot : true,
                 bezierCurve : true
             }
-            myLineChart = new Chart(ctx).Line(data,Options);
+            myLineChart = new Chart(ctx).Line(data, Options);
         });
         </script>
     </head>
     
     <body>
-        <canvas id="myChart">chart</canvas>        
+        <div class = "container-fluid">
+            <div class = "row">
+                <div class = "col-sm-6">
+                    <h3>Temperature Graph</h3>
+                    <canvas id="temperature-chart">chart</canvas> 
+                </div>
+                <div class = "col-sm-6">
+                    <h3>Send a Command</h3>
+
+                    <div class = "form-inline">
+                        <label>Command to Execute</label>
+                        <select id = "command-dropdown" class="form-control">
+                            <option text = "test">1</option>
+                            <option text = "test">2</option>
+                            <option text = "test">3</option>
+                            <option text = "test">4</option>
+                            <option text = "test">5</option>
+                        </select>
+                        <label>Value to Send</label>
+                        <input type="text" class="form-control" id="command-value" placeholder="type value to send...">
+                        <button class="form-control" id = "command-send" class="btn btn-default" type="submit">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
