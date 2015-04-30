@@ -7,7 +7,7 @@ var app = express();
 app.use(express.static("./www"));
 var server = app.listen(10000);
 
-var Data = {"Temperature": 0, "ConfigurationRegister": 0, "IsLocked": 0, "IsReady": 0, "AlertOutput": 0, "Resolution": 0, "UpperTemperature": 0, "LowerTemperautre": 0, "CriticalTemperature": 0};
+var Data = {"Temperature": 0, "ConfigurationRegister": 0, "IsLocked": 0, "IsReady": 0, "AlertOutput": 0, "Resolution": 0, "UpperTemperature": 0, "LowerTemperature": 0, "CriticalTemperature": 0};
 
 function UpdateObject(Callback)
 {
@@ -41,7 +41,7 @@ function UpdateObject(Callback)
 
 								MCP9808.GetLowerTemperature(function(LowerTemperatureError, LowerTemperautreData)
 								{
-									Data["LowerTemperautre"] = LowerTemperautreData;
+									Data["LowerTemperature"] = LowerTemperautreData;
 
 									MCP9808.GetCriticalTemperature(function(CriticalTemperatureError, CriticalTemperatureData)
 									{
@@ -86,12 +86,18 @@ MCP9808.Initialize(function()
 	    	switch(Request["Command"]) 
 	    	{
 			    case "SetShutdown":
-			        console.log("SetShutdown");
+			        MCP9808.SetShutdown(function(){});
 			        break;
 
 			    case "SetTemperatureHysteresis":
 			        console.log("Set Hystresis to " + Request["Value"]);
+			        MCP9808.SetTemperatureHysteresis(Request["Value"], function(){});
 			        break;
+
+		        case "SetCriticalLock":
+		        	console.log("Set Critical Lock");
+		        	MCP9808.SetCriticalLock(function(){});
+		        	break;
 			        
 			    default:
 			        console.log("Invalid Request");

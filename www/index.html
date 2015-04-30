@@ -10,11 +10,17 @@
 
             #command-dropdown
             {
-                width: 25%
+                width: 50%
             }
             #command-value
             {
-                width: 25%;
+                width: 50%;
+            }
+
+            .command-group
+            {
+                margin-top: 10px;
+                margin-bottom: 10px;
             }
 
         </style>
@@ -31,43 +37,81 @@
         var socket = io.connect('http://10.48.102.103:10000');
         var myLineChart;
         var Points = 0;
-        var Data = {}; 
+        var Data = {};
+
+        var Parameters = {"SetShutdown": false, "SetTemperatureHysteresis": true, "SetCriticalLock": false};
 
         //once the connection is functional
         socket.on('data', function(data)
         {
-            socket.emit('data', JSON.stringify({"Test": "hello"}));
-
             Data = JSON.parse(data);
-
-            console.log(Data);
             
-            console.log(Date.now() - StartTime);
-            UpdateChartData(Math.floor((Date.now() - StartTime) / 1000.0), Data["Temperature"]);
+            UpdateDOM();
 
+            UpdateChartData();
+        });
+
+        //update the chart function
+        function UpdateChartData()
+        {
             if(Points > 10)
             {
                 myLineChart.removeData();
             }
-        });
 
-        //update the chart function
-        function UpdateChartData(X, Y)
-        {
-            myLineChart.addData([Y], X);
+            myLineChart.addData([Data["Temperature"]], Math.floor((Date.now() - StartTime) / 1000.0));
             myLineChart.update();
             Points+=1;
+        }
+
+        function UpdateDOM()
+        {
+            console.log(Data);
+            console.log();
+            $("#alert-output").html(Data["AlertOutput"]);
+            $("#configuration-register").html(Data["ConfigurationRegister"]);
+            $("#critical-temperature").html(Data["CriticalTemperature"]);
+            $("#is-locked").html(Data["IsLocked"].toString());
+            $("#is-ready").html(Data["IsReady"].toString());
+            $("#lower-temperature").html(Data["LowerTemperature"]);
+            $("#resolution").html(Data["Resolution"]);
+            $("#temperature").html(Data["Temperature"]);
+            $("#upper-temperature").html(Data["UpperTemperature"]);
+        }
+
+        function UpdateParameters()
+        {
+            var Command = $("#command-dropdown option:selected").val();
+
+            if(Parameters[Command] == false)
+            {
+                $("#command-value-label").fadeOut(500);
+                $("#command-value").fadeOut(500);
+            }
+            else
+            {
+                $("#command-value-label").fadeIn(500);
+                $("#command-value").fadeIn(500);
+            }
         }
 
         //setup the chart
         $(document).ready(function()
         {
+            UpdateParameters();
+
+            $('#command-dropdown').change(function() 
+            {    
+                UpdateParameters();
+            });
+
             $("#command-send").click(function()
             {
-                var Command = $("#command-dropdown option:selected").attr("test");
+                var Command = $("#command-dropdown option:selected").val();
                 var Value = $("#command-value").val();
+                var ObjectToSend = {"Command": Command, "Value": Value};
 
-                alert(Command + ", " + Value);
+                socket.emit('data', JSON.stringify(ObjectToSend));
             });
 
             //set the start time
@@ -93,25 +137,46 @@
     <body>
         <div class = "container-fluid">
             <div class = "row">
-                <div class = "col-sm-6">
+                <div class = "col-sm-6 col-sm-offset-3">
                     <h3>Temperature Graph</h3>
                     <canvas id="temperature-chart">chart</canvas> 
+                </div>
+            </div>
+            <div class = "row">
+                <div class = "col-sm-6">
+                    <h3>Sensor Readings</h3>
+                    <p>Alert Output: <span id = "alert-output"></span></p>
+                    <p>Configuration Register: <span id = "configuration-register"></span></p>
+                    <p>Critical Temperature: <span id = "critical-temperature"></span></p>
+                    <p>Is Locked: <span id = "is-locked"></span></p>
+                    <p>Is Ready: <span id = "is-ready"></span></p>
+                    <p>Lower Temperature: <span id = "lower-temperature"></span></p>
+                    <p>Resolution: <span id = "resolution"></span></p>
+                    <p>Tempertaure: <span id = "temperature"></span></p>
+                    <p>Upper Temperature: <span id = "upper-temperature"></span></p>
                 </div>
                 <div class = "col-sm-6">
                     <h3>Send a Command</h3>
 
                     <div class = "form-inline">
-                        <label>Command to Execute</label>
-                        <select id = "command-dropdown" class="form-control">
-                            <option text = "test">1</option>
-                            <option text = "test">2</option>
-                            <option text = "test">3</option>
-                            <option text = "test">4</option>
-                            <option text = "test">5</option>
-                        </select>
-                        <label>Value to Send</label>
-                        <input type="text" class="form-control" id="command-value" placeholder="type value to send...">
-                        <button class="form-control" id = "command-send" class="btn btn-default" type="submit">Send</button>
+                        <div class = "command-group">
+                            <label>Command to Execute</label>
+                            <select id = "command-dropdown" class="form-control">
+                                <option value = "SetShutdown">Set Shutdown</option>
+                                <option value = "SetTemperatureHysteresis">Set Temperature Hysteresis</option>
+                                <option value = "SetCriticalLock">Set Critical Lock</option>
+                                <option text = "test">4</option>
+                                <option text = "test">5</option>
+                            </select>
+                        </div>
+                        <div class = "command-group">
+                            <div id = "command-value-input-container">
+                            <label id = "command-value-label">Value to Send</label>
+                            <input type="text" class="form-control" id="command-value" placeholder="type value to send...">
+                        </div>
+                        <div class = "command-group">
+                            <button class="form-control" id = "command-send" class="btn btn-default" type="submit">Send</button>
+                        </div>
                     </div>
                 </div>
             </div>
