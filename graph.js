@@ -98,7 +98,63 @@ MCP9808.Initialize(function()
 		        	console.log("Set Critical Lock");
 		        	MCP9808.SetCriticalLock(function(){});
 		        	break;
-			        
+		        case "ClearShutdown":
+		        	MCP9808.ClearShutdown(function(){});
+		        	break;
+	        	case "ClearConfigurationRegister":
+	        		MCP9808.ClearConfigurationRegister(function(){});
+	        		break;
+        		case "SetWindowLock":
+        			MCP9808.SetWindowLock(function(){});
+        			break;
+    			case "SetInterruptClear":
+    				MCP9808.SetInterruptClear(function(){});
+    				break;
+				case "SetAlertStatus":
+					MCP9808.SetAlertStatus(function(){});
+					break;
+				case "SetAlertControl":
+					MCP9808.SetAletControl(function(){});
+					break;
+				case "SetAlertSelect":
+					MCP9808.SetAlertSelect(function(){});
+					break;
+				case "SetAlertPolarity":
+					MCP9808.SetAlertPolarity(function(){});
+					break;
+				case "SetAlertMode":
+					MCP9808.SetAlertMode(function(){});
+					break;
+				case "ClearAlertMode":
+					MCP9808.ClearAlertMode(function(){});
+					break;
+				case "ClearAlertPolarity":
+					MCP9808.ClearAlertPolarity(function(){});
+					break;
+				case "ClearAlertSelect":
+					MCP9808.ClearAlertSelect(function(){});
+					break;
+				case "ClearAlertControl":
+					MCP9808.ClearAlertControl(function(){});
+					break;
+				case "ClearAlertStatus":
+					MCP9808.ClearAlertStatus(function(){});
+					break;
+				case "ClearInterruptClear":
+					MCP9808.ClearInterruptClear(function(){});
+					break;
+				case "SetResolution":
+					MCP9808.SetResolution(Request["Value"], function(){});
+					break;
+				case "SetUpperTemperature":
+					MCP9808.SetUpperTemperature(Request["Value"], function(){});
+					break;
+				case "SetLowerTemperature":
+					MCP9808.SetLowerTemperature(Request["Value"], function(){});
+					break;
+				case "SetCriticalTemperature":
+					MCP9808.SetCriticalTemperature(Request["Value"], function(){});
+					break;
 			    default:
 			        console.log("Invalid Request");
 			}

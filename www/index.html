@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
     <head>
@@ -39,23 +38,23 @@
         var Points = 0;
         var Data = {};
 
-        var Parameters = {"SetShutdown": false, "SetTemperatureHysteresis": true, "SetCriticalLock": false};
+        var Parameters = {"SetTemperatureHysteresis": true, "SetResolution": true, "SetUpperTemperature": true, "SetLowerTemperature": true, "SetCriticalTemperature": true};
 
         //once the connection is functional
         socket.on('data', function(data)
         {
             Data = JSON.parse(data);
-            
             UpdateDOM();
-
             UpdateChartData();
         });
 
         //update the chart function
         function UpdateChartData()
         {
-            if(Points > 10)
+            while(Points > 50)
             {
+                Points -= 1;
+
                 myLineChart.removeData();
             }
 
@@ -83,15 +82,32 @@
         {
             var Command = $("#command-dropdown option:selected").val();
 
-            if(Parameters[Command] == false)
+            if(Parameters[Command] == true)
+            {
+                $("#command-value-label").fadeIn(500);
+                $("#command-value").fadeIn(500);
+            }
+            else
             {
                 $("#command-value-label").fadeOut(500);
                 $("#command-value").fadeOut(500);
             }
-            else
+        }
+
+        function UpdateRadio()
+        {
+            if($('input[id=Clear]:checked').val() == "Clear")
             {
-                $("#command-value-label").fadeIn(500);
-                $("#command-value").fadeIn(500);
+                $(".command-set").hide(0);
+                $(".command-clear").show(0);
+                $("#command-dropdown").val("ClearShutdown");
+            }
+
+            if($('input[id=Set]:checked').val() == "Set")
+            {
+                $(".command-set").show(0);
+                $(".command-clear").hide(0);
+                $("#command-dropdown").val("SetResolution");
             }
         }
 
@@ -99,10 +115,16 @@
         $(document).ready(function()
         {
             UpdateParameters();
+            UpdateRadio();
 
             $('#command-dropdown').change(function() 
             {    
                 UpdateParameters();
+            });
+
+            $(".radio").change(function()
+            {
+                UpdateRadio();
             });
 
             $("#command-send").click(function()
@@ -157,16 +179,46 @@
                 </div>
                 <div class = "col-sm-6">
                     <h3>Send a Command</h3>
-
                     <div class = "form-inline">
                         <div class = "command-group">
-                            <label>Command to Execute</label>
+                            <label>Type of Command: </label>
+                            <div class="radio">
+                              <label>
+                                <input type="radio" name="options-radio" id="Clear" value="Clear" checked>
+                                Clear
+                              </label>
+                            </div>
+                            <div class="radio">
+                              <label>
+                                <input type="radio" name="options-radio" id="Set" value="Set">
+                                Set
+                              </label>
+                            </div>
+                        </div>
+                        <div class = "command-group">
+                            <label>Command to Execute: </label>
                             <select id = "command-dropdown" class="form-control">
-                                <option value = "SetShutdown">Set Shutdown</option>
-                                <option value = "SetTemperatureHysteresis">Set Temperature Hysteresis</option>
-                                <option value = "SetCriticalLock">Set Critical Lock</option>
-                                <option text = "test">4</option>
-                                <option text = "test">5</option>
+                                <option class = "command-set" value = "SetShutdown">Set Shutdown</option>
+                                <option class = "command-set" value = "SetTemperatureHysteresis">Set Temperature Hysteresis</option>
+                                <option class = "command-set" value = "SetCriticalLock">Set Critical Lock</option>
+                                <option class = "command-clear"value = "ClearShutdown">Clear Shutdown</option>
+                                <option class = "command-set" value = "SetWindowLock">Set Window Lock</option>
+                                <option class = "command-set" value = "SetInterruptClear">Set Interrupt Clear</option>
+                                <option class = "command-set" value = "SetAlertStatus">Set Alert Status</option>
+                                <option class = "command-set" value = "SetAlertControl">Set Alert Control</option>
+                                <option class = "command-set" value = "SetAlertSelect">Set Alert Select</option>
+                                <option class = "command-set" value = "SetAlertPolarity">Set Alert Polarity</option>
+                                <option class = "command-set" value = "SetAlertMode">Set Alert Mode</option>
+                                <option class = "command-clear" value = "ClearAlertMode">Clear Alert Mode</option>
+                                <option class = "command-clear"value = "ClearAlertPolarity">Clear Alert Polarity</option>
+                                <option class = "command-clear"value = "ClearAlertSelect">Clear Alert Select</option>
+                                <option class = "command-clear"value = "ClearAlertControl">Clear Alert Control</option>
+                                <option class = "command-clear"value = "ClearAlertStatus">Clear Alert Status</option>
+                                <option class = "command-clear"value = "ClearInterruptClear">Clear Interrupt Clear</option>
+                                <option id = "set-default-command" class = "command-set" value = "SetResolution">Set Resolution</option>
+                                <option class = "command-set" value = "SetUpperTemperature">Set Upper Temperature</option>
+                                <option class = "command-set" value = "SetLowerTemperature">Set Lower Temperature</option>
+                                <option class = "command-set" value = "SetCriticalTemperature">Set Critical Temperature</option>
                             </select>
                         </div>
                         <div class = "command-group">
