@@ -1,10 +1,10 @@
 //import mcp9808
-var MCP9808 = new require('./mcp9808.js');
+var MCP9808 = new require('./../mcp9808.js');
 
 //setup express server
 var express = require('express');
 var app = express();
-app.use(express.static("./www"));
+app.use(express.static("./graph-webpage"));
 var server = app.listen(10000);
 
 var Data = {"Temperature": 0, "ConfigurationRegister": 0, "IsLocked": 0, "IsReady": 0, "AlertOutput": 0, "Resolution": 0, "UpperTemperature": 0, "LowerTemperature": 0, "CriticalTemperature": 0};
@@ -75,7 +75,7 @@ MCP9808.Initialize(function()
 					socket.emit('data', JSON.stringify(Data));
 				});
 			});
-		}, 1000);
+		}, 200);
 	    //send most recent update out to client
 
 	    socket.on('data', function(data)

@@ -95,7 +95,7 @@ exports.ClearShutdown = function(Callback)
 {
     exports.GetConfigurationRegister(function(ReadError, Configuration)
     {
-        NewConfig = Configuration & ~CONFIGURATION_SHUTDOWN_BYTES;
+        NewConfig = Configuration& ~CONFIGURATION_SHUTDOWN_BYTES;
         WriteData(CONFIGURATION_REGISTER, [NewConfig >> 8, NewConfig], function(err)
         {
             Callback(err);
