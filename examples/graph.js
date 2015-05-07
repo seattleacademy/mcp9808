@@ -1,5 +1,5 @@
-//import mcp9808
-var MCP9808 = new require('./../mcp9808.js');
+//import the module
+var MCP9808 = new require('mcp9808');
 
 //setup express server
 var express = require('express');
@@ -75,7 +75,7 @@ MCP9808.Initialize(function()
 					socket.emit('data', JSON.stringify(Data));
 				});
 			});
-		}, 200);
+		}, 500);
 	    //send most recent update out to client
 
 	    socket.on('data', function(data)

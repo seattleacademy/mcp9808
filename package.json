@@ -1,6 +1,6 @@
 {
   "name": "mcp9808",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "node.js interface for the mcp9808 temperature sensor",
   "main": "index.js",
   "scripts": {
@@ -11,13 +11,18 @@
     "url": "http://github.com/seattleacademy/mcp9808"
   },
   "dependencies": {
-    "i2c": "~0.1.4"
+    "i2c": "~0.1.4",
+    "express": "~4.12.3",
+    "socket.io": "~1.3.5"
   },
   "keywords": [
     "sensor",
-    "mcp9808"
+    "mcp9808",
+    "temperature",
+    "raspberry",
+    "pi"
   ],
-  "author": "Seattle Academy",
+  "author": "Isaac Zinda",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/seattleacademy/mcp9808/issues"
