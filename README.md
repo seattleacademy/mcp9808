@@ -1,2 +1,2 @@
-# mcp9808
-node.js interface to the mcp9808 temperature sensor
+# MCP9808 Node.js Library
+MCP9808 is a free-to-use library for controlling the MCP9808 temperature sensor from the raspberry pi. It includes support for all commands highlighted in the sensor’s [datasheet] (http://www.farnell.com/datasheets/1522173.pdf “Datasheet”), and provides useful examples of how to use the library in the examples folder. The examples include tools from a basic command-line temperature reader to a complete web-based temperature controller. 
