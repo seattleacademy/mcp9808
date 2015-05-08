@@ -1,5 +1,5 @@
 //import the module
-var MCP9808 = new require('mcp9808');
+var MCP9808 = new require('../index.js');
 
 //setup express server
 var express = require('express');
