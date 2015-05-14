@@ -1,6 +1,6 @@
 {
   "name": "mcp9808",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "node.js interface for the mcp9808 temperature sensor",
   "main": "index.js",
   "scripts": {
