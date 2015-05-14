@@ -45,8 +45,4 @@ graph.js provides a powerful web interface for using the mcp9808 sensor. To use,
 
 	sudo node graph.js
 
-<<<<<<< HEAD
 Then navigate to [ip address]:10000. Here you will see a graph of the sensor’s temperature readings and a list of commands to send to the sensor.
-=======
-Then navigate to [ip address]:10000 will bring up a graph of the sensor’s temperature readings and a list of commands to send to the sensor.
->>>>>>> f75d6a9f07a9394543edc26fbaa004773cc65571
