@@ -1,5 +1,5 @@
 # The Project
-mcp9808 is a free-to-use library for controlling the mcp9808 temperature sensor from the raspberry pi. It includes support for all commands highlighted in the sensor’s datasheet, and provides useful examples of how to use the library in the examples folder. The examples include tools from a basic command-line temperature reader to a complete web-based temperature controller. 
+mcp9808 is a free-to-use library for controlling the mcp9808 temperature sensor from the raspberry pi. It includes support for all commands highlighted in the sensor’s datasheet, and provides useful examples of how to use the library in the examples folder. The examples include tools from a basic command-line temperature reader to a complete web-based temperature controller. This codebase is managed by Isaac Zinda. 
 
 # Installation
 
@@ -45,4 +45,8 @@ graph.js provides a powerful web interface for using the mcp9808 sensor. To use,
 
 	sudo node graph.js
 
+<<<<<<< HEAD
 Then navigate to [ip address]:10000. Here you will see a graph of the sensor’s temperature readings and a list of commands to send to the sensor.
+=======
+Then navigate to [ip address]:10000 will bring up a graph of the sensor’s temperature readings and a list of commands to send to the sensor.
+>>>>>>> f75d6a9f07a9394543edc26fbaa004773cc65571
