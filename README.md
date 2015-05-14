@@ -5,9 +5,10 @@ mcp9808 is a free-to-use library for controlling the mcp9808 temperature sensor 
 
 mcp9808 is available as an npm module. To download, simply run:  
 
-	sudo npm install mcp9808
+	sudo npm install mcp9808 --unsafe-perm
 
-Once the module is installed, navigate to the node_modules folder and enter into the mcp9808 directory. Here, type: 
+Once the module is installed, navigate to the node_modules folder and enter into the mcp9808 directory. Then type: 
+
 	sudo ./setup.sh
 
 This command will automatically configure the raspberry pi to use I2C.
@@ -44,4 +45,4 @@ graph.js provides a powerful web interface for using the mcp9808 sensor. To use,
 
 	sudo node graph.js
 
-Then navigate to [ip address]:10000 will bring up a graph of the sensor’s temperature readings and a list of commands to send to the sensor.
+Then navigate to [ip address]:10000. Here you will see a graph of the sensor’s temperature readings and a list of commands to send to the sensor.

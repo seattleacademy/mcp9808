@@ -1,19 +1,10 @@
 
 var StartTime;
-var socket = io.connect('http://10.48.102.103:10000');
 var myLineChart;
 var Points = 0;
 var Data = {};
 
 var Parameters = {"SetTemperatureHysteresis": true, "SetResolution": true, "SetUpperTemperature": true, "SetLowerTemperature": true, "SetCriticalTemperature": true};
-
-//once the connection is functional
-socket.on('data', function(data)
-{
-    Data = JSON.parse(data);
-    UpdateDOM();
-    UpdateChartData();
-});
 
 //update the chart function
 function UpdateChartData()
@@ -32,8 +23,6 @@ function UpdateChartData()
 
 function UpdateDOM()
 {
-    console.log(Data);
-    console.log();
     $("#alert-output").html(Data["AlertOutput"]);
     $("#configuration-register").html(Data["ConfigurationRegister"]);
     $("#critical-temperature").html(Data["CriticalTemperature"]);
@@ -81,6 +70,17 @@ function UpdateRadio()
 //setup the chart
 $(document).ready(function()
 {
+    //get the data every 1000 miliseconds
+    setInterval(function()
+    {
+        $.get( "/data", function(data) 
+        {
+            Data = JSON.parse(data);
+            UpdateDOM();
+            UpdateChartData();
+        });
+    }, 1000);
+
     UpdateParameters();
     UpdateRadio();
 
@@ -98,9 +98,16 @@ $(document).ready(function()
     {
         var Command = $("#command-dropdown option:selected").val();
         var Value = $("#command-value").val();
-        var ObjectToSend = {"Command": Command, "Value": Value};
+        var ObjectToSend = {'Command': Command, 'Value': Value};
 
-        socket.emit('data', JSON.stringify(ObjectToSend));
+        //send the data
+        console.log(JSON.stringify(ObjectToSend));
+
+        //send the post command
+        $.post("/send", ObjectToSend).done(function(data) 
+        {
+            console.log(data);
+        });
     });
 
     //set the start time
