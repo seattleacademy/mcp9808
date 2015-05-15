@@ -4,15 +4,18 @@ var app = express();
 var bodyParser = require('body-parser')
 app.use(express.static("./graph-webpage"));
 var server = app.listen(10000);
-app.use( bodyParser.json() );       // to support JSON-encoded bodies
+app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 })); 
 
 var Data = {"Temperature": 0, "ConfigurationRegister": 0, "IsLocked": 0, "IsReady": 0, "AlertOutput": 0, "Resolution": 0, "UpperTemperature": 0, "LowerTemperature": 0, "CriticalTemperature": 0};
 
+control.log("Starting...")
+
 MCP9808.Initialize(function()
 {
+	console.log("Sensor Initialized.")
 	SetupMiddleware();
 });
 
@@ -28,7 +31,6 @@ function SetupMiddleware()
 
 	app.post('/send', function(req, res)
 	{
-
 		console.log("Recieved '" + req.body.Command + "'' with Value '" + req.body.Value + "'");
 		
 		switch(req.body.Command) 
@@ -107,6 +109,8 @@ function SetupMiddleware()
 
 		res.send("success");
 	});
+
+	console.log("Middleware Setup").
 }
 	    	
 
