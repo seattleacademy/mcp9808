@@ -196,7 +196,6 @@ exports.SetInterruptClear = function(Callback)
     });
 }
 
-//not working
 exports.SetAlertStatus = function(Callback)
 {
     exports.GetConfigurationRegister(function(ReadError, Configuration)
