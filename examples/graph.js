@@ -110,7 +110,7 @@ function SetupMiddleware()
 		res.send("success");
 	});
 
-	console.log("Middleware Setup").
+	console.log("Middleware Setup");
 }
 	    	
 
