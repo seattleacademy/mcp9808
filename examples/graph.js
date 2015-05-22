@@ -1,3 +1,5 @@
+console.log("Starting...");
+
 var MCP9808 = new require('../index.js');
 var express = require('express');
 var app = express();
@@ -11,11 +13,9 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 
 var Data = {"Temperature": 0, "ConfigurationRegister": 0, "IsLocked": 0, "IsReady": 0, "AlertOutput": 0, "Resolution": 0, "UpperTemperature": 0, "LowerTemperature": 0, "CriticalTemperature": 0};
 
-control.log("Starting...")
-
 MCP9808.Initialize(function()
 {
-	console.log("Sensor Initialized.")
+	console.log("Sensor Initialized.");
 	SetupMiddleware();
 });
 
@@ -110,7 +110,7 @@ function SetupMiddleware()
 		res.send("success");
 	});
 
-	console.log("Middleware Setup");
+	console.log("Middleware Setup.");
 }
 	    	
 
