@@ -2,6 +2,22 @@ var chai = require("chai");
 var MCP9808 = require("../index.js");
 var expect = chai.expect;
 
+function Clear(Callback)
+{
+	MCP9808.ClearConfigurationRegister(function(){
+		MCP9808.SetResolution(0x00, function(){
+			MCP9808.SetUpperTemperature(0, function(){
+				MCP9808.SetLowerTemperature(0, function(){
+					MCP9808.SetCriticalTemperature(0, function(){
+						Callback();
+					});
+				});
+			});
+		});
+	});
+}
+
+
 function TestWritableBits(Callback)
 {
 	//set all of the bits, then make sure that 
@@ -70,13 +86,15 @@ function TestTemperature(Callback)
 
 MCP9808.Initialize(function()
 {
-	TestWritableBits(function () 
-	{
-		TestSetCommands(function()
+	Clear(function(){
+		TestWritableBits(function () 
 		{
-			TestTemperature(function()
+			TestSetCommands(function()
 			{
-				//done
+				TestTemperature(function()
+				{
+					//done
+				});
 			});
 		});
 	});
