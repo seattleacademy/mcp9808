@@ -2,8 +2,8 @@
 <html>
     <head>
         <title>MCP9808 Sensor Controller</title>
-        <link href="css/style.css" rel="stylesheet">
         <link href="css/bootstrap.css" rel="stylesheet">
+        <link href="css/style.css" rel="stylesheet">
         <script src="js/jquery-1.9.1.min.js"></script>
         <script src="js/Chart.min.js"></script>
         <script type="text/javascript" src="/socket.io/socket.io.js"></script>
@@ -13,75 +13,114 @@
     <body>
         <div class = "container-fluid">
             <div class = "row">
-                <div class = "col-sm-6 col-sm-offset-3">
-                    <h3>Temperature Graph</h3>
-                    <canvas id="temperature-chart">chart</canvas> 
-                </div>
-            </div>
-            <div class = "row">
                 <div class = "col-sm-6">
-                    <h3>Sensor Readings</h3>
-                    <p>Alert Output: <span id = "alert-output"></span></p>
-                    <p>Configuration Register: <span id = "configuration-register"></span></p>
-                    <p>Critical Temperature: <span id = "critical-temperature"></span></p>
-                    <p>Is Locked: <span id = "is-locked"></span></p>
-                    <p>Is Ready: <span id = "is-ready"></span></p>
-                    <p>Lower Temperature: <span id = "lower-temperature"></span></p>
-                    <p>Resolution: <span id = "resolution"></span></p>
-                    <p>Tempertaure: <span id = "temperature"></span></p>
-                    <p>Upper Temperature: <span id = "upper-temperature"></span></p>
+                    <div class="jumbotron">
+                        <h1>mcp9808 Sensor Controller</h1>
+                        <p>A demonstration of how to interface with the mcp9808 sensor over the Raspberry Pi. To learn more, make a pull request on the <a href = "https://github.com/seattleacademy/mcp9808">mcp9808 GitHub repo</a> or read the <a href = "http://www.farnell.com/datasheets/1522173.pdf">sensor spec sheet</a>. Created by Isaac Zinda and Gary Anderson</p>
+                    </div>
+
+                    <div class="jumbotron">
+                        <h2>Temperature Graph</h2>
+                        <canvas id="temperature-chart">chart</canvas> 
+                    </div>
                 </div>
+             <!--    <div class = "col-sm-6">
+                    
+                </div> -->
+
                 <div class = "col-sm-6">
-                    <h3>Send a Command</h3>
-                    <div class = "form-inline">
-                        <div class = "command-group">
-                            <label>Type of Command: </label>
-                            <div class="radio">
-                              <label>
-                                <input type="radio" name="options-radio" id="Clear" value="Clear" checked>
-                                Clear
-                              </label>
+                    <div class="jumbotron">
+                        <h2>Sensor Readings</h2>
+                        <table class="table">
+                            <tr>
+                                <td>Alert Output</td>
+                                <td id = "alert-output"></td>
+                            </tr>
+                            <tr>
+                                <td>Configuration Register</td> 
+                                <td id = "configuration-register"></td> 
+                            </tr>
+                            <tr>
+                                <td>Critical Temperature</td>
+                                <td id = "critical-temperature"></td>
+                            </tr>
+                            <tr>
+                                <td>Is Locked</td>
+                                <td id = "is-locked"></td>
+                            </tr>
+                            <tr>
+                                <td>Is Ready</td>
+                                <td id = "is-ready"></td>
+                            </tr>
+                            <tr>
+                                <td>Lower Temperature</td>
+                                <td id = "lower-temperature"></td>
+                            </tr>
+                            <tr>
+                                <td>Resolution</td>
+                                <td id = "resolution"></td>
+                            </tr>
+                            <tr>
+                                <td>Tempertaure</td>
+                                <td id = "temperature"></td>
+                            </tr>
+                                <td>Upper Temperature</td>
+                                <td id = "upper-temperature"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="jumbotron">
+                        <h2>Send a Command</h2>
+                        <div class = "form-inline">
+                            <div class = "command-group">
+                                <label>Type of Command: </label>
+                                <div class="radio">
+                                  <label>
+                                    <input type="radio" name="options-radio" id="Clear" value="Clear" checked>
+                                    Clear
+                                  </label>
+                                </div>
+                                <div class="radio">
+                                  <label>
+                                    <input type="radio" name="options-radio" id="Set" value="Set">
+                                    Set
+                                  </label>
+                                </div>
                             </div>
-                            <div class="radio">
-                              <label>
-                                <input type="radio" name="options-radio" id="Set" value="Set">
-                                Set
-                              </label>
+                            <div class = "command-group">
+                                <label>Command to Execute: </label>
+                                <select id = "command-dropdown" class="form-control">
+                                    <option class = "command-set" value = "SetShutdown">Set Shutdown</option>
+                                    <option class = "command-set" value = "SetTemperatureHysteresis">Set Temperature Hysteresis</option>
+                                    <option class = "command-set" value = "SetCriticalLock">Set Critical Lock</option>
+                                    <option class = "command-clear"value = "ClearShutdown">Clear Shutdown</option>
+                                    <option class = "command-set" value = "SetWindowLock">Set Window Lock</option>
+                                    <option class = "command-set" value = "SetInterruptClear">Set Interrupt Clear</option>
+                                    <option class = "command-set" value = "SetAlertStatus">Set Alert Status</option>
+                                    <option class = "command-set" value = "SetAlertControl">Set Alert Control</option>
+                                    <option class = "command-set" value = "SetAlertSelect">Set Alert Select</option>
+                                    <option class = "command-set" value = "SetAlertPolarity">Set Alert Polarity</option>
+                                    <option class = "command-set" value = "SetAlertMode">Set Alert Mode</option>
+                                    <option class = "command-clear" value = "ClearAlertMode">Clear Alert Mode</option>
+                                    <option class = "command-clear"value = "ClearAlertPolarity">Clear Alert Polarity</option>
+                                    <option class = "command-clear"value = "ClearAlertSelect">Clear Alert Select</option>
+                                    <option class = "command-clear"value = "ClearAlertControl">Clear Alert Control</option>
+                                    <option class = "command-clear"value = "ClearAlertStatus">Clear Alert Status</option>
+                                    <option class = "command-clear"value = "ClearInterruptClear">Clear Interrupt Clear</option>
+                                    <option id = "set-default-command" class = "command-set" value = "SetResolution">Set Resolution</option>
+                                    <option class = "command-set" value = "SetUpperTemperature">Set Upper Temperature</option>
+                                    <option class = "command-set" value = "SetLowerTemperature">Set Lower Temperature</option>
+                                    <option class = "command-set" value = "SetCriticalTemperature">Set Critical Temperature</option>
+                                </select>
                             </div>
-                        </div>
-                        <div class = "command-group">
-                            <label>Command to Execute: </label>
-                            <select id = "command-dropdown" class="form-control">
-                                <option class = "command-set" value = "SetShutdown">Set Shutdown</option>
-                                <option class = "command-set" value = "SetTemperatureHysteresis">Set Temperature Hysteresis</option>
-                                <option class = "command-set" value = "SetCriticalLock">Set Critical Lock</option>
-                                <option class = "command-clear"value = "ClearShutdown">Clear Shutdown</option>
-                                <option class = "command-set" value = "SetWindowLock">Set Window Lock</option>
-                                <option class = "command-set" value = "SetInterruptClear">Set Interrupt Clear</option>
-                                <option class = "command-set" value = "SetAlertStatus">Set Alert Status</option>
-                                <option class = "command-set" value = "SetAlertControl">Set Alert Control</option>
-                                <option class = "command-set" value = "SetAlertSelect">Set Alert Select</option>
-                                <option class = "command-set" value = "SetAlertPolarity">Set Alert Polarity</option>
-                                <option class = "command-set" value = "SetAlertMode">Set Alert Mode</option>
-                                <option class = "command-clear" value = "ClearAlertMode">Clear Alert Mode</option>
-                                <option class = "command-clear"value = "ClearAlertPolarity">Clear Alert Polarity</option>
-                                <option class = "command-clear"value = "ClearAlertSelect">Clear Alert Select</option>
-                                <option class = "command-clear"value = "ClearAlertControl">Clear Alert Control</option>
-                                <option class = "command-clear"value = "ClearAlertStatus">Clear Alert Status</option>
-                                <option class = "command-clear"value = "ClearInterruptClear">Clear Interrupt Clear</option>
-                                <option id = "set-default-command" class = "command-set" value = "SetResolution">Set Resolution</option>
-                                <option class = "command-set" value = "SetUpperTemperature">Set Upper Temperature</option>
-                                <option class = "command-set" value = "SetLowerTemperature">Set Lower Temperature</option>
-                                <option class = "command-set" value = "SetCriticalTemperature">Set Critical Temperature</option>
-                            </select>
-                        </div>
-                        <div class = "command-group">
-                            <div id = "command-value-input-container">
-                            <label id = "command-value-label">Value to Send</label>
-                            <input type="text" class="form-control" id="command-value" placeholder="type value to send...">
-                        </div>
-                        <div class = "command-group">
-                            <button class="form-control" id = "command-send" class="btn btn-default" type="submit">Send</button>
+                            <div class = "command-group">
+                                <div id = "command-value-input-container">
+                                <label id = "command-value-label">Value to Send</label>
+                                <input type="text" class="form-control" id="command-value" placeholder="type value to send...">
+                            </div>
+                            <div class = "command-group">
+                                <button class="form-control" id = "command-send" class="btn btn-default" type="submit">Send</button>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -9,7 +9,7 @@ var Parameters = {"SetTemperatureHysteresis": true, "SetResolution": true, "SetU
 //update the chart function
 function UpdateChartData()
 {
-    while(Points > 50)
+    while(Points > 10)
     {
         Points -= 1;
 
@@ -30,7 +30,7 @@ function UpdateDOM()
     $("#is-ready").html(Data["IsReady"].toString());
     $("#lower-temperature").html(Data["LowerTemperature"]);
     $("#resolution").html(Data["Resolution"]);
-    $("#temperature").html(Data["Temperature"]);
+    $("#temperature").html((Data["Temperature"]).toFixed(3));
     $("#upper-temperature").html(Data["UpperTemperature"]);
 }
 

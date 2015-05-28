@@ -17,3 +17,30 @@
     margin-top: 10px;
     margin-bottom: 10px;
 }
+
+/*h3
+{
+	text-align: center;
+}*/
+
+body
+{
+	padding-top: 10px;
+}
+
+.jumbotron
+{
+	padding-top: 20px;
+	padding-bottom: 20px;
+	padding-left: 30px !important;
+	padding-right: 30px !important;
+}
+
+body
+{
+	background: -webkit-linear-gradient(90deg, #8e9eab 10%, #eef2f3 90%); /* Chrome 10+, Saf5.1+ */
+	background:    -moz-linear-gradient(90deg, #8e9eab 10%, #eef2f3 90%); /* FF3.6+ */
+	background:     -ms-linear-gradient(90deg, #8e9eab 10%, #eef2f3 90%); /* IE10 */
+	background:      -o-linear-gradient(90deg, #8e9eab 10%, #eef2f3 90%); /* Opera 11.10+ */
+	background:         linear-gradient(90deg, #8e9eab 10%, #eef2f3 90%); /* W3C */
+}
